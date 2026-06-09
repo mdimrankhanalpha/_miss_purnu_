@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Photo Portfolio</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Header Navigation */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 5%;
+            background: linear-gradient(to bottom, rgba(11, 12, 16, 1), rgba(11, 12, 16, 0));
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #ff4a5a;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            color: #c5c6c7;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ff4a5a;
+        }
+
+        /* Hero / Title Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            color: #66fcf1;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Gallery Grid Setup */
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 5% 5rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 4 / 5;
+            background-color: #1f2833;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease, filter 0.6s ease;
+            filter: brightness(0.9);
+        }
+
+        /* Hover Overlay Effects */
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .item-info {
+            position: absolute;
+            bottom: -20px;
+            left: 20px;
+            right: 20px;
+            z-index: 2;
+            opacity: 0;
+            transition: bottom 0.4s ease, opacity 0.4s ease;
+        }
+
+        .item-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-info p {
+            font-size: 0.85rem;
+            color: #ff4a5a;
+        }
+
+        /* Interactive States */
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+            filter: brightness(1);
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .gallery-item:hover .item-info {
+            bottom: 20px;
+            opacity: 1;
+        }
+
+        /* Lightbox Modal View */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(11, 12, 16, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            user-select: none;
+        }
+
+        .lightbox.active .lightbox-content {
+            transform: scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: #fff;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            user-select: none;
+            z-index: 1010;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 3rem;
+            cursor: pointer;
+            padding: 15px;
+            user-select: none;
+            transition: color 0.2s, scale 0.2s;
+            z-index: 1010;
+        }
+
+        .nav-btn:hover {
+            color: #ff4a5a;
+            scale: 1.1;
+        }
+
+        .prev-btn { left: 20px; }
+        .next-btn { right: 20px; }
+
+        .close-btn:hover {
+            color: #ff4a5a;
+        }
+
+        /* Responsive Fixes */
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 15px;
+            }
+            header {
+                padding: 1.5rem 5%;
+            }
+            .close-btn {
+                top: 20px;
+                right: 25px;
+                font-size: 2rem;
+            }
+            .nav-btn {
+                font-size: 2rem;
+                padding: 5px;
+            }
+            .prev-btn { left: 5px; }
+            .next-btn { right: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Visuals</div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Gallery</a>
+            <a href="#">About</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Exclusive Collection</h1>
+        <p>Featured Works & Portraits</p>
+    </section>
+
+    <main class="gallery-container">
+        <div class="gallery-grid" id="galleryGrid">
+            </div>
+    </main>
+
+    <div id="lightbox" class="lightbox">
+        <span class="close-btn" onclick="closeLightbox()">&times;</span>
+        <span class="nav-btn prev-btn" onclick="navigateLightbox(-1, event)">&#10094;</span>
+        <img id="lightbox-img" class="lightbox-content" src="" alt="Enlarged View">
+        <span class="nav-btn next-btn" onclick="navigateLightbox(1, event)">&#10095;</span>
+    </div>
+
+    <script>
+        // Complete, unique raw imagery database (71 elements total)
+        const images = [
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/584984530_18064167875396649_4180668534426034831_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/586650044_18064459745396649_3627533302709804937_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/586964691_18064459772396649_1914802253566234231_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/587904551_18064362857396649_1006901816227931212_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/588086004_18064459763396649_491835945540321327_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/588164396_18064362875396649_2652273376766246006_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/588242249_18064634942396649_117108764070776409_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/588637631_18064634951396649_7200574836042467514_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/588738762_18065838872396649_6240312086178995244_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/589319801_18066097139396649_4397415012478491232_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/589902059_18064459754396649_6298239920977948276_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/590416281_18064362872396649_6556158819305553572_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/590417735_18065838860396649_7525706125192965076_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/590418822_18064167884396649_861848997840722647_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/602367755_18066269867396649_4307681798904791141_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/652552986_18074425382396649_7611305017008469752_n%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/652552986_18074425382396649_7611305017008469752_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/652726170_18074425334396649_6372788393435776160_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/652758313_18074425352396649_6425023054158546930_n%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/652758313_18074425352396649_6425023054158546930_n.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Bihu%20mode%20on%E2%9D%A4%EF%B8%8F%F0%9F%99%88...%23assamesegirl%23mekhelasadorlove%20%23fyppppppppppppppppppppppppppppppppppppppppppp%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Bihu%20mode%20on%E2%9D%A4%EF%B8%8F%F0%9F%99%88...%23assamesegirl%23mekhelasadorlove%20%23fyppppppppppppppppppppppppppppppppppppppppppp%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Bihu%20mode%20on%E2%9D%A4%EF%B8%8F%F0%9F%99%88...%23assamesegirl%23mekhelasadorlove%20%23fyppppppppppppppppppppppppppppppppppppppppppp%20(3).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Bihu%20mode%20on%E2%9D%A4%EF%B8%8F%F0%9F%99%88...%23assamesegirl%23mekhelasadorlove%20%23fyppppppppppppppppppppppppppppppppppppppppppp%20(4).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Bihu%20mode%20on%E2%9D%A4%EF%B8%8F%F0%9F%99%88...%23assamesegirl%23mekhelasadorlove%20%23fyppppppppppppppppppppppppppppppppppppppppppp.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Jobon%20dudiniya%E2%9D%A4%EF%B8%8F%F0%9F%A5%80___..%23assamese%20%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppp%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Jobon%20dudiniya%E2%9D%A4%EF%B8%8F%F0%9F%A5%80___..%23assamese%20%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppp%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Jobon%20dudiniya%E2%9D%A4%EF%B8%8F%F0%9F%A5%80___..%23assamese%20%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppp%20(3).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Jobon%20dudiniya%E2%9D%A4%EF%B8%8F%F0%9F%A5%80___..%23assamese%20%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppp.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Rongalir%20rong%E2%9D%A4%EF%B8%8F____...%23bohagbihu%20%23assam%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppppppp%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Rongalir%20rong%E2%9D%A4%EF%B8%8F____...%23bohagbihu%20%23assam%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppppppp%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Rongalir%20rong%E2%9D%A4%EF%B8%8F____...%23bohagbihu%20%23assam%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppppppp%20(3).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Rongalir%20rong%E2%9D%A4%EF%B8%8F____...%23bohagbihu%20%23assam%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppppppp%20(4).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Rongalir%20rong%E2%9D%A4%EF%B8%8F____...%23bohagbihu%20%23assam%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppppppp%20(5).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Rongalir%20rong%E2%9D%A4%EF%B8%8F____...%23bohagbihu%20%23assam%20%23fyppppppppppppppppppppppppppppppppppppppppppppppppppppp.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Sale%20tumar%20sokule%20%F0%9F%91%80%E2%99%A5%EF%B8%8F__%23traditional%20%23mekhela_chador%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Sale%20tumar%20sokule%20%F0%9F%91%80%E2%99%A5%EF%B8%8F__%23traditional%20%23mekhela_chador%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Sale%20tumar%20sokule%20%F0%9F%91%80%E2%99%A5%EF%B8%8F__%23traditional%20%23mekhela_chador%20(3).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Sale%20tumar%20sokule%20%F0%9F%91%80%E2%99%A5%EF%B8%8F__%23traditional%20%23mekhela_chador%20(4).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Sale%20tumar%20sokule%20%F0%9F%91%80%E2%99%A5%EF%B8%8F__%23traditional%20%23mekhela_chador%20(5).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Sale%20tumar%20sokule%20%F0%9F%91%80%E2%99%A5%EF%B8%8F__%23traditional%20%23mekhela_chador%20(6).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/Sale%20tumar%20sokule%20%F0%9F%91%80%E2%99%A5%EF%B8%8F__%23traditional%20%23mekhela_chador.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/_%23assamesesong%20%23mekhelasadorlove%20%23fyp%E3%82%B7%E2%9D%A4%EF%B8%8F%F0%9F%92%9E%E2%9D%A4%EF%B8%8F%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/_%23assamesesong%20%23mekhelasadorlove%20%23fyp%E3%82%B7%E2%9D%A4%EF%B8%8F%F0%9F%92%9E%E2%9D%A4%EF%B8%8F%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/_%23assamesesong%20%23mekhelasadorlove%20%23fyp%E3%82%B7%E2%9D%A4%EF%B8%8F%F0%9F%92%9E%E2%9D%A4%EF%B8%8F%20(3).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/_%23assamesesong%20%23mekhelasadorlove%20%23fyp%E3%82%B7%E2%9D%A4%EF%B8%8F%F0%9F%92%9E%E2%9D%A4%EF%B8%8F.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%B8.....%23fyp%20%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fst%20%23trendingpost%20%23assamesesong%E2%9D%A4%EF%B8%8F%20%23mekhela_chador%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%B8.....%23fyp%20%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fst%20%23trendingpost%20%23assamesesong%E2%9D%A4%EF%B8%8F%20%23mekhela_chador%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%B8.....%23fyp%20%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fst%20%23trendingpost%20%23assamesesong%E2%9D%A4%EF%B8%8F%20%23mekhela_chador.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%B8%F0%9F%92%97.....%23fyp%20%23%E1%B4%9B%CA%80%E1%B4%87%C9%B4%E1%B4%85%C9%AA%C9%B4%C9%A2%E1%B4%98%E1%B4%8Fs%E1%B4%9B%20%23assamesesong%20%23%C4%B1nstagood%20%23mekhelasador%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%B8%F0%9F%92%97.....%23fyp%20%23%E1%B4%9B%CA%80%E1%B4%87%C9%B4%E1%B4%85%C9%AA%C9%B4%C9%A2%E1%B4%98%E1%B4%8Fs%E1%B4%9B%20%23assamesesong%20%23%C4%B1nstagood%20%23mekhelasador%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%B8%F0%9F%92%97.....%23fyp%20%23%E1%B4%9B%CA%80%E1%B4%87%C9%B4%E1%B4%85%C9%AA%C9%B4%C9%A2%E1%B4%98%E1%B4%8Fs%E1%B4%9B%20%23assamesesong%20%23%C4%B1nstagood%20%23mekhelasador.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%BF%E2%9D%A4%EF%B8%8F%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%BF%E2%9D%A4%EF%B8%8F%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%BF%E2%9D%A4%EF%B8%8F%20(3).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%BF%E2%9D%A4%EF%B8%8F%20(4).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%8C%BF%E2%9D%A4%EF%B8%8F.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp%20(1).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp%20(2).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp%20(3).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp%20(4).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp%20(5).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp%20(6).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp%20(7).jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8...%23assamesegirl%23%E1%B4%A0%C9%AA%CA%80%E1%B4%80%CA%9F%E1%B4%98%E1%B4%8Fs%E1%B4%9B%23fyp.jpg",
+            "https://raw.githubusercontent.com/mdimrankhanalpha/_miss_purnu_/main/%F0%9F%92%9C%F0%9F%8C%B8.jpg"
+        ];
+
+        let currentLightboxIndex = -1;
+        const grid = document.getElementById('galleryGrid');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        // Dynamically build clean gallery structure 
+        function generateGallery() {
+            images.forEach((src, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.setAttribute('onclick', `openLightbox(${index})`);
+
+                // Create semantic cleanly formatted names from filenames
+                let titleName = src.split('/').pop().split('.jpg')[0];
+                titleName = decodeURIComponent(titleName).replace(/[^a-zA-Z0-9#\s]/g, ' ').trim();
+                if(titleName.length > 28) titleName = titleName.substring(0, 25) + '...';
+                if(!titleName) titleName = `Creative Series - Portrait ${index + 1}`;
+
+                item.innerHTML = `
+                    <img src="${src}" alt="Portrait View ${index + 1}" loading="lazy">
+                    <div class="item-info">
+                        <h3>${titleName}</h3>
+                        <p>View Full Screen</p>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            lightboxImg.src = images[index];
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function navigateLightbox(direction, event) {
+            if (event) event.stopPropagation(); // Prevents auto closing container click
+            currentLightboxIndex += direction;
+            
+            if (currentLightboxIndex >= images.length) currentLightboxIndex = 0;
+            if (currentLightboxIndex < 0) currentLightboxIndex = images.length - 1;
+            
+            lightboxImg.src = images[currentLightboxIndex];
+        }
+
+        // Close when clicking empty dark area
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        // Key bindings for keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === "Escape") closeLightbox();
+            if (e.key === "ArrowRight") navigateLightbox(1);
+            if (e.key === "ArrowLeft") navigateLightbox(-1);
+        });
+
+        // Initialize immediately
+        generateGallery();
+    </script>
+</body>
+</html>
